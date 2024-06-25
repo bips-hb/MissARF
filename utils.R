@@ -115,19 +115,25 @@ eval_nrmse <- function(instance, dat_imputed) {
 }
 
 # Evaluate prediction performance of logistic regression --------------------
-eval_prediction <- function(dat_imputed_train, dat_imputed_test) {
+eval_prediction <- function(instance, dat_imputed_train, dat_imputed_test) {
   # If multiple imputation, average (mean or mode)
   dat_imputed_train <- average_datasets(dat_imputed_train)
   dat_imputed_test <- average_datasets(dat_imputed_test)
   
+  if (instance$train$effect == "squared") {
+    frml <- paste0("y ~ ", paste0("I(", colnames(dat_imputed_train)[-1], "^2)", collapse = " + "))
+  } else {
+    frml <- paste0("y ~ ", paste0(colnames(dat_imputed_train)[-1], collapse = " + "))
+  }
+  
   # Fit/predict/evaluate model
   if (is.factor(dat_imputed_test$y)) {
     # Train/predict/evaluate model
-    fit <- glm(y ~ ., dat_imputed_train, family = "binomial")
+    fit <- glm(as.formula(frml), dat_imputed_train, family = "binomial")
     pred <- predict(fit, dat_imputed_test, type = "response")
     mlr3measures::bbrier(dat_imputed_test$y, pred, positive = "1")
   } else {
-    fit <- lm(y ~ ., dat_imputed_train)
+    fit <- lm(as.formula(frml), dat_imputed_train)
     pred <- predict(fit, newdata = dat_imputed_test)
     mlr3measures::rmse(dat_imputed_test$y, pred)
   }
@@ -140,7 +146,7 @@ eval_fun <- function(instance, train_imputed, test_imputed, eval) {
   } else if (eval == "nrmse") {
     eval_nrmse(instance$train, train_imputed)
   } else if (eval == "prediction") {
-    eval_prediction(train_imputed, test_imputed)
+    eval_prediction(instance, train_imputed, test_imputed)
   } else {
     stop("Unknown evaluation.")
   }
