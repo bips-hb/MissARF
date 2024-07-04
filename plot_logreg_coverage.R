@@ -33,20 +33,20 @@ plots <- lapply(res[, unique(effect)], function(em) {
   pp <- lapply(res[, unique(dist)], function(dm) {
     pp <- lapply(res[, unique(n)], function(nm) {
       lapply(eva[, unique(p)], function(pm) {
-        p1 <- ggplot(eva[p == pm & dist == dm & effect == em, ], aes(x = Method, y = relative_bias, fill = term)) +
+        p1 <- ggplot(eva[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = relative_bias, fill = term)) +
           facet_grid(prop_mis ~ pattern, scales = "free") +
           geom_bar(stat = "identity", position = "dodge") +
           theme_bw() + 
           coord_flip()
         
-        p2 <- ggplot(eva[p == pm & dist == dm & effect == em, ], aes(x = Method, y = coverage_rate)) +
+        p2 <- ggplot(eva[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = coverage_rate)) +
           facet_grid(prop_mis ~ pattern) +
           geom_boxplot() +
           geom_hline(yintercept = 0.95, color = "red") +
           theme_bw() + 
           coord_flip()
         
-        p3 <- ggplot(eva[p == pm & dist == dm & effect == em, ], aes(x = Method, y = average_width)) +
+        p3 <- ggplot(eva[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = average_width)) +
           facet_grid(prop_mis ~ pattern, scales = "free") +
           geom_boxplot(outlier.size = .1) +
           theme_bw() + 

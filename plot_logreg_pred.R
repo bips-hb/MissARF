@@ -26,9 +26,9 @@ plots <- lapply(res[, unique(effect)], function(em) {
   pp <- lapply(res[, unique(dist)], function(dm) {
     pp <- lapply(res[, unique(n)], function(nm) {
       lapply(res[, unique(p)], function(pm) {
-        ggplot(res[p == pm & dist == dm & effect == em, ], aes(x = Method, y = perf)) +
+        ggplot(res[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = perf)) +
           facet_grid(prop_mis ~ pattern) +
-          geom_boxplot() +
+          geom_boxplot(outlier.size = .1) +
           theme_bw() + 
           ylab("Brier score") + 
           coord_flip() + 

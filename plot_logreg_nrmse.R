@@ -28,7 +28,7 @@ plots <- lapply(res[, unique(effect)], function(em) {
       lapply(res[, unique(p)], function(pm) {
         ggplot(res[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = nrmse)) +
           facet_grid(prop_mis ~ pattern) +
-          geom_boxplot() +
+          geom_boxplot(outlier.size = .1) +
           theme_bw() + 
           coord_flip() + 
           ggtitle(paste("n =", nm, ", p =", pm, ", dist =", dm, ", effect =", em))
