@@ -6,7 +6,8 @@ library(patchwork)
 reg_name <- "logreg_coverage"
 
 # Get results -------------------------------------------------------------
-res <- readRDS(paste0(reg_name, ".Rds"))
+path <- file.path("/opt/projects/imputation_benchmark/")
+res <- readRDS(file.path(path, paste0(reg_name, ".rds")))
 
 # Evaluate ----------------------------------------------------------------
 res[, Method := factor(paste0(algorithm,
@@ -68,7 +69,7 @@ invisible(lapply(1:length(plots), function(i) {
   lapply(1:length(plots[[i]]), function(j) {
     lapply(1:length(plots[[i]][[j]]), function(k) {
       pp <- patchwork::wrap_plots(plots[[i]][[j]][[k]], ncol = 1)
-      ggsave(paste0(reg_name, "_", names(plots)[i], "_", names(plots[[i]])[j], "_", names(plots[[i]][[j]])[k], ".pdf"), plot = pp, width = 30, height = 30)
+      ggsave(file.path("results", paste0(reg_name, "_", names(plots)[i], "_", names(plots[[i]])[j], "_", names(plots[[i]][[j]])[k], ".pdf")), plot = pp, width = 30, height = 30)
     })
   })
 }))
