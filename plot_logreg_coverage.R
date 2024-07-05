@@ -2,11 +2,11 @@
 library(data.table)
 library(ggplot2)
 library(patchwork)
+source("setup.R")
 
 reg_name <- "logreg_coverage"
 
 # Get results -------------------------------------------------------------
-path <- file.path("/opt/projects/imputation_benchmark/")
 res <- readRDS(file.path(path, paste0(reg_name, ".rds")))
 
 # Evaluate ----------------------------------------------------------------

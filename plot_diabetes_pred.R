@@ -4,7 +4,7 @@ library(ggplot2)
 library(patchwork)
 source("setup.R")
 
-reg_name <- "logreg_pred"
+reg_name <- "diabetes_pred"
 
 # Get results -------------------------------------------------------------
 res <- readRDS(file.path(path, paste0(reg_name, ".rds")))
@@ -23,32 +23,16 @@ res[, pattern := factor(pattern, levels = c("MCAR", "MAR", "MNAR"))]
 res[, perf := V1]
 
 # Plot --------------------------------------------------------------------
-plots <- lapply(res[, unique(effect)], function(em) {
-  pp <- lapply(res[, unique(dist)], function(dm) {
-    pp <- lapply(res[, unique(n)], function(nm) {
-      lapply(res[, unique(p)], function(pm) {
-        ggplot(res[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = perf)) +
-          facet_grid(prop_mis ~ pattern) +
-          geom_boxplot(outlier.size = .1) +
-          theme_bw() + 
-          ylab("Brier score") + 
-          coord_flip() + 
-          ggtitle(paste("n =", nm, ", p =", pm, ", dist =", dm, ", effect =", em))
-      })
-    })
-    names(pp) <- res[, unique(n)]
-    pp
-  })
-  names(pp) <- res[, unique(dist)]
-  pp
+plots <- lapply(res[, unique(n)], function(nm) {
+  ggplot(res[n == nm, ], aes(x = Method, y = perf)) +
+    facet_grid(prop_mis ~ pattern) +
+    geom_boxplot() +
+    theme_bw() + 
+    ylab("Brier score") + 
+    coord_flip() + 
+    ggtitle(paste("n =", nm))
 })
-names(plots) <- res[, unique(effect)]
+names(plots) <- res[, unique(n)]
 
-invisible(lapply(1:length(plots), function(i) {
-  lapply(1:length(plots[[i]]), function(j) {
-    lapply(1:length(plots[[i]][[j]]), function(k) {
-      pp <- patchwork::wrap_plots(plots[[i]][[j]][[k]], ncol = 1)
-      ggsave(file.path("results", paste0(reg_name, "_", names(plots)[i], "_", names(plots[[i]])[j], "_", names(plots[[i]][[j]])[k], ".pdf")), plot = pp, width = 10, height = 20)
-    })
-  })
-}))
+pp <- patchwork::wrap_plots(plots, ncol = 1)
+ggsave(file.path("results", paste0(reg_name, ".pdf")), plot = pp, width = 10, height = 20)

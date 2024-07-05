@@ -4,6 +4,8 @@ library(data.table)
 library(missMethods)
 library(simstudy)
 
+data_path <- file.path("/opt/projects/imputation_benchmark/data")
+
 # Simulate data -----------------------------------------------------------
 sim_data <- function(n, p, prop_mis = 0.1, pattern = "MCAR", 
                      cov_base = 0.5, outcome = "classif", beta_max = 0.5, 
@@ -91,4 +93,58 @@ sim_fun <- function(data, job, traintest = FALSE, ...) {
   list(train = train, 
        test = test)
 }
+
+# Get real data -----------------------------------------------------------
+get_data <- function(n, prop_mis = 0.1, pattern = "MCAR") {
+  # Get complete data
+  dat_full <- fread(file.path(data_path, "diabetes_binary_health_indicators_BRFSS2015.csv"))
+  colnames(dat_full)[1] <- "y"
+  dat_full[, y := as.factor(y)]
+  
+  truth <- summary(glm(y ~., dat_full, family = "binomial"))$coefficients[-1, "Estimate"]
+  
+  # Random subset to n observations
+  if (!is.null(n) && n < nrow(dat_full)) {
+    idx <- sample(nrow(dat_full), n)
+    dat_complete <- dat_full[idx, ]
+  } else {
+    dat_complete <- dat_full
+  }
+  
+  # Simulate missings 
+  feat_names <- setdiff(colnames(dat_complete), "y")
+  cols_mis <- sample(feat_names, floor(length(feat_names) / 2))
+  if (pattern == "MCAR") {
+    dat_na <- delete_MCAR(dat_complete, p = prop_mis, cols_mis = cols_mis)
+  } else if (pattern == "MAR") {
+    cols_ctrl <- setdiff(feat_names, cols_mis)
+    if (length(cols_ctrl) != length(cols_mis)) {
+      # If uneven number features, remove one from cols_ctrl
+      cols_ctrl <- cols_ctrl[-1]
+    }
+    dat_na <- delete_MAR_one_group(dat_complete, p = prop_mis, cols_mis = cols_mis, cols_ctrl = cols_ctrl)
+  } else if (pattern == "MNAR") {
+    dat_na <- delete_MNAR_one_group(dat_complete, p = prop_mis, cols_mis = cols_mis)
+  } else {
+    stop("Unknown pattern.")
+  }
+  
+  # Return complete and incomplete data
+  list(complete = dat_complete, 
+       incomplete = dat_na, 
+       beta = truth)
+}
+
+real_fun <- function(data, job, traintest = FALSE, ...) {
+  train <- get_data(...)
+  if (traintest) {
+    test <- get_data(...)
+  } else {
+    test <- NULL
+  }
+  
+  list(train = train, 
+       test = test)
+}
+
 

@@ -2,21 +2,16 @@
 library(batchtools)
 source("setup.R")
 
-# Simulation study: NRMSE ---------------------------------------------
-reg_name <- "logreg_nrmse"
+# Real data - diabetes: NRMSE ---------------------------------------------
+reg_name <- "diabetes_nrmse"
 
 set.seed(42)
 
 # Problem args
 missing_probs <- c(0.1, 0.2, 0.4)  
 patterns <- c("MCAR", "MAR", "MNAR")
-cov_base <- 0.5
-beta_max <- 0.5
-n <- c(1000, 10000)
-p <- c(4, 10, 20)
-dist <- c("normal", "uniform", "binary", "poisson", "gamma")
-effect <- c("linear", "squared")
-repls <- 1000
+n <- 1000
+repls <- 100
 
 # Single imputation
 m <- 1
@@ -45,7 +40,7 @@ makeExperimentRegistry(file.dir = reg_dir, seed = 42,
                        source = c("utils.R", "problems.R", "algorithms.R"))
 
 # Problems -----------------------------------------------------------
-addProblem(name = "sim_data", fun = sim_fun, seed = 43)
+addProblem(name = "real_data", fun = real_fun, seed = 43)
 
 # Algorithms -----------------------------------------------------------
 addAlgorithm(name = "mice", fun = mice_fun)
@@ -57,17 +52,11 @@ addAlgorithm(name = "random", fun = random_fun)
 
 # Experiments -----------------------------------------------------------
 prob_design <- list(
-  sim_data = expand.grid(
+  real_data = expand.grid(
     traintest = FALSE,
     n = n, 
-    p = p, 
     prop_mis = missing_probs,
     pattern = patterns, 
-    cov_base = cov_base,
-    outcome = "classif", 
-    beta_max = beta_max, 
-    dist = dist,
-    effect = effect,
     stringsAsFactors = FALSE
   )
 )
@@ -117,5 +106,5 @@ res <- ijoin(unwrap(getJobPars()), reduceResultsDataTable()[, as.data.table(resu
 saveRDS(res, file.path(path, paste0(reg_name, ".rds")))
 
 # Plot ----------------------------------------------------------------
-source("plot_logreg_nrmse.R")
+source("plot_diabetes_nrmse.R")
 

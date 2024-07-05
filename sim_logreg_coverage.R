@@ -1,12 +1,9 @@
 
 library(batchtools)
+source("setup.R")
 
-pak::pkg_install("imbs-hl/ranger@missing_values")
-pak::pkg_install("bips-hb/arf")
-
-source("utils.R")
-source("problems.R")
-source("algorithms.R")
+# Simulation study: COVERAGE ---------------------------------------------
+reg_name <- "logreg_coverage"
 
 set.seed(42)
 
@@ -41,7 +38,6 @@ num.trees <- 100
 ntree <- 100
 
 # Registry ----------------------------------------------------------------
-reg_name <- "logreg_coverage"
 if (!file.exists("registries")) dir.create("registries")
 reg_dir <- file.path("registries", reg_name)
 unlink(reg_dir, recursive = TRUE)
@@ -115,7 +111,7 @@ waitForJobs()
 
 # Get/save results ---------------------------------------------------------
 res <- ijoin(unwrap(getJobPars()), reduceResultsDataTable()[, as.data.table(result), by = job.id])
-saveRDS(res, paste0(reg_name, ".Rds"))
+saveRDS(res, file.path(path, paste0(reg_name, ".rds")))
 
 # Plot ----------------------------------------------------------------
 source("plot_logreg_coverage.R")

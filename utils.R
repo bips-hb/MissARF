@@ -59,7 +59,7 @@ average_datasets <- function(dats) {
 # Evaluate coverage -------------------------------------------------------
 eval_coverage <- function(instance, dat_imputed) {
   # Linear or squared effect
-  if (instance$effect == "squared") {
+  if (!is.null(instance$effect) && instance$effect == "squared") {
     frml <- paste0("y ~ ", paste0("I(", colnames(instance$complete)[-1], "^2)", collapse = " + "))
   } else {
     frml <- paste0("y ~ ", paste0(colnames(instance$complete)[-1], collapse = " + "))
@@ -85,6 +85,11 @@ eval_coverage <- function(instance, dat_imputed) {
 eval_nrmse <- function(instance, dat_imputed) {
   # If multiple imputation, average (mean or mode)
   dat_imputed <- average_datasets(dat_imputed)
+  
+  # If still any missings (happens e.g. for mice with constant variables), median imputation
+  if (any(is.na(dat_imputed))) {
+    dat_imputed <- impute_median(dat_imputed)
+  }
   
   # Recode integers
   idx_integer <- which(sapply(instance$complete, is.integer))
@@ -120,7 +125,15 @@ eval_prediction <- function(instance, dat_imputed_train, dat_imputed_test) {
   dat_imputed_train <- average_datasets(dat_imputed_train)
   dat_imputed_test <- average_datasets(dat_imputed_test)
   
-  if (instance$train$effect == "squared") {
+  # If still any missings (happens e.g. for mice with constant variables), median imputation
+  if (any(is.na(dat_imputed_train))) {
+    dat_imputed_train <- impute_median(dat_imputed_train)
+  }
+  if (any(is.na(dat_imputed_test))) {
+    dat_imputed_test <- impute_median(dat_imputed_test)
+  }
+  
+  if (!is.null(instance$train$effect) && instance$train$effect == "squared") {
     frml <- paste0("y ~ ", paste0("I(", colnames(dat_imputed_train)[-1], "^2)", collapse = " + "))
   } else {
     frml <- paste0("y ~ ", paste0(colnames(dat_imputed_train)[-1], collapse = " + "))
