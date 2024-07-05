@@ -22,6 +22,13 @@ res[, Method := factor(paste0(algorithm,
 res[, pattern := factor(pattern, levels = c("MCAR", "MAR", "MNAR"))]
 res[, perf := V1]
 
+# Rename methods
+res[, Method := factor(Method, 
+                       levels = c("arf_1_expct_local_10_100", "missRanger_1_5", "missRanger_1_0", 
+                                  "mice_rf_1", "mice_pmm_1", "median", "random_1"), 
+                       labels = c("ARF", "MissForest PMM", "MissForest", 
+                                  "MICE RF", "MICE PMM", "Median Imp.", "Random Imp."))]
+
 # Plot --------------------------------------------------------------------
 plots <- lapply(res[, unique(effect)], function(em) {
   pp <- lapply(res[, unique(dist)], function(dm) {

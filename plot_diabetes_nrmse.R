@@ -22,11 +22,18 @@ res[, Method := factor(paste0(algorithm,
 res[, pattern := factor(pattern, levels = c("MCAR", "MAR", "MNAR"))]
 res[, nrmse := V1]
 
+# Rename methods
+res[, Method := factor(Method, 
+                       levels = c("arf_1_expct_local_10_100", "missRanger_1_5", "missRanger_1_0", 
+                                  "mice_rf_1", "mice_pmm_1", "median", "random_1"), 
+                       labels = c("ARF", "MissForest PMM", "MissForest", 
+                                  "MICE RF", "MICE PMM", "Median Imp.", "Random Imp."))]
+
 # Plot --------------------------------------------------------------------
 plots <- lapply(res[, unique(n)], function(nm) {
   ggplot(res[n == nm, ], aes(x = Method, y = nrmse)) +
     facet_grid(prop_mis ~ pattern) +
-    geom_boxplot() +
+    geom_boxplot(outlier.size = .1) +
     theme_bw() + 
     coord_flip() + 
     ggtitle(paste("n =", nm))
@@ -34,4 +41,4 @@ plots <- lapply(res[, unique(n)], function(nm) {
 names(plots) <- res[, unique(n)]
 
 pp <- patchwork::wrap_plots(plots, ncol = 1)
-ggsave(file.path("results", paste0(reg_name, ".pdf")), plot = pp, width = 10, height = 20)
+ggsave(file.path("results", paste0(reg_name, ".pdf")), plot = pp, width = 10, height = 10)

@@ -19,6 +19,13 @@ res[, Method := factor(paste0(algorithm,
 ))]
 res[, pattern := factor(pattern, levels = c("MCAR", "MAR", "MNAR"))]
 
+# Rename methods
+res[, Method := factor(Method, 
+                       levels = c("arf_local_10_100", "missRanger_5", "missRanger_0", 
+                                  "mice_rf", "mice_pmm", "median", "random"), 
+                       labels = c("ARF", "MissForest PMM", "MissForest", 
+                                  "MICE RF", "MICE PMM", "Median Imp.", "Random Imp."))]
+
 eva <- res[, .(raw_bias = mean(estimate - truth), 
                percent_bias = 100 * abs(mean((estimate - truth) / truth)),
                relative_bias = mean((estimate - truth) / abs(truth)),
