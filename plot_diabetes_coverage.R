@@ -27,34 +27,36 @@ res[, Method := factor(Method,
                                   "MICE RF", "MICE PMM", "Median Imp.", "Random Imp."))]
 
 eva <- res[, .(raw_bias = mean(estimate - truth), 
-               percent_bias = 100 * abs(mean((estimate - truth) / truth)),
-               relative_bias = mean((estimate - truth) / abs(truth)),
-               relative_bias_median = median((estimate - truth) / abs(truth)),
-               coverage_rate = mean(lower < truth & truth < upper),
-               average_width = mean(upper - lower), 
-               rmse = sqrt(mean((estimate - truth)^2))), 
+               percent_bias = 100 * abs(mean((estimate - truth) / truth, na.rm = TRUE)),
+               relative_bias = mean((estimate - truth) / abs(truth), na.rm = TRUE),
+               relative_bias_median = median((estimate - truth) / abs(truth), na.rm = TRUE),
+               coverage_rate = mean(lower < truth & truth < upper, na.rm = TRUE),
+               average_width = mean(upper - lower, na.rm = TRUE), 
+               rmse = sqrt(mean((estimate - truth)^2, na.rm = TRUE))), 
            by = .(Method, n, prop_mis, pattern, term)] 
 eva <- unique(eva)
 
 # Plot --------------------------------------------------------------------
 plots <- lapply(res[, unique(n)], function(nm) {
-  p1 <- ggplot(eva[n == nm, ], aes(x = Method, y = relative_bias, fill = term)) +
+  p1 <- ggplot(eva[n == nm, ], aes(x = Method, y = rmse)) +
     facet_grid(prop_mis ~ pattern, scales = "free") +
-    geom_bar(stat = "identity", position = "dodge") +
+    #geom_boxplot(outlier.size = .1) +
+    geom_boxplot(outliers = FALSE) +
     theme_bw() + 
-    coord_flip() + 
-    ggtitle(paste("n =", nm))
+    coord_flip()
   
   p2 <- ggplot(eva[n == nm, ], aes(x = Method, y = coverage_rate)) +
     facet_grid(prop_mis ~ pattern) +
-    geom_boxplot() +
+    geom_boxplot(outlier.size = .1) +
+    #geom_boxplot(outliers = FALSE) +
     geom_hline(yintercept = 0.95, color = "red") +
     theme_bw() + 
     coord_flip()
   
   p3 <- ggplot(eva[n == nm, ], aes(x = Method, y = average_width)) +
     facet_grid(prop_mis ~ pattern, scales = "free") +
-    geom_boxplot(outlier.size = .1) +
+    #geom_boxplot(outlier.size = .1) +
+    geom_boxplot(outliers = FALSE) +
     theme_bw() + 
     coord_flip()
   

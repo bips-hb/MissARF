@@ -4,7 +4,7 @@ library(ggplot2)
 library(patchwork)
 source("setup.R")
 
-reg_name <- "logreg_coverage"
+reg_name <- "logreg_coverage-tmp"
 
 # Get results -------------------------------------------------------------
 res <- readRDS(file.path(path, paste0(reg_name, ".rds")))
@@ -22,9 +22,9 @@ res[, pattern := factor(pattern, levels = c("MCAR", "MAR", "MNAR"))]
 # Rename methods
 res[, Method := factor(Method, 
                        levels = c("arf_local_10_100", "missRanger_5", "missRanger_0", 
-                                  "mice_rf", "mice_pmm", "median", "random"), 
+                                  "mice_rf", "mice_pmm", "random"), 
                        labels = c("ARF", "MissForest PMM", "MissForest", 
-                                  "MICE RF", "MICE PMM", "Median Imp.", "Random Imp."))]
+                                  "MICE RF", "MICE PMM", "Random Imp."))]
 
 eva <- res[, .(raw_bias = mean(estimate - truth), 
                percent_bias = 100 * abs(mean((estimate - truth) / truth)),
@@ -41,15 +41,16 @@ plots <- lapply(res[, unique(effect)], function(em) {
   pp <- lapply(res[, unique(dist)], function(dm) {
     pp <- lapply(res[, unique(n)], function(nm) {
       lapply(eva[, unique(p)], function(pm) {
-        p1 <- ggplot(eva[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = relative_bias, fill = term)) +
+        p1 <- ggplot(eva[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = rmse)) +
           facet_grid(prop_mis ~ pattern, scales = "free") +
-          geom_bar(stat = "identity", position = "dodge") +
+          geom_boxplot(outlier.size = .1) +
           theme_bw() + 
-          coord_flip()
+          coord_flip() + 
+          ggtitle(paste("n =", nm, ", p =", pm, ", dist =", dm, ", effect =", em))
         
         p2 <- ggplot(eva[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = coverage_rate)) +
           facet_grid(prop_mis ~ pattern) +
-          geom_boxplot() +
+          geom_boxplot(outlier.size = .1) +
           geom_hline(yintercept = 0.95, color = "red") +
           theme_bw() + 
           coord_flip()
@@ -58,8 +59,7 @@ plots <- lapply(res[, unique(effect)], function(em) {
           facet_grid(prop_mis ~ pattern, scales = "free") +
           geom_boxplot(outlier.size = .1) +
           theme_bw() + 
-          coord_flip() + 
-          ggtitle(paste("n =", nm, ", p =", pm, ", dist =", dm, ", effect =", em))
+          coord_flip() 
         
         (p1 + p2 + p3)
       })
