@@ -39,6 +39,7 @@ plots <- lapply(res[, unique(effect)], function(em) {
           geom_boxplot(outlier.size = .1) +
           theme_bw() + 
           coord_flip() + 
+          ylab("Data NRMSE") + 
           ggtitle(paste("n =", nm, ", p =", pm, ", dist =", dm, ", effect =", em))
       })
     })

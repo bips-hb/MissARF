@@ -43,7 +43,8 @@ plots <- lapply(res[, unique(n)], function(nm) {
     #geom_boxplot(outlier.size = .1) +
     geom_boxplot(outliers = FALSE) +
     theme_bw() + 
-    coord_flip()
+    coord_flip()  + 
+    ylab("Coefficient RMSE")
   
   p2 <- ggplot(eva[n == nm, ], aes(x = Method, y = coverage_rate)) +
     facet_grid(prop_mis ~ pattern) +
@@ -51,14 +52,16 @@ plots <- lapply(res[, unique(n)], function(nm) {
     #geom_boxplot(outliers = FALSE) +
     geom_hline(yintercept = 0.95, color = "red") +
     theme_bw() + 
-    coord_flip()
+    coord_flip() + 
+    ylab("Coverage rate")
   
   p3 <- ggplot(eva[n == nm, ], aes(x = Method, y = average_width)) +
     facet_grid(prop_mis ~ pattern, scales = "free") +
     #geom_boxplot(outlier.size = .1) +
     geom_boxplot(outliers = FALSE) +
     theme_bw() + 
-    coord_flip()
+    coord_flip() + 
+    ylab("Average CI width")
   
   (p1 + p2 + p3)
 })

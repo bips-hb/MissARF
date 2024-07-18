@@ -36,7 +36,7 @@ plots <- lapply(res[, unique(n)], function(nm) {
     geom_boxplot(outlier.size = .1) +
     theme_bw() + 
     coord_flip() + 
-    ggtitle(paste("n =", nm))
+    ylab("Data NRMSE")
 })
 names(plots) <- res[, unique(n)]
 

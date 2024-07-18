@@ -4,7 +4,7 @@ library(ggplot2)
 library(patchwork)
 source("setup.R")
 
-reg_name <- "logreg_coverage-tmp"
+reg_name <- "logreg_coverage"
 
 # Get results -------------------------------------------------------------
 res <- readRDS(file.path(path, paste0(reg_name, ".rds")))
@@ -46,6 +46,7 @@ plots <- lapply(res[, unique(effect)], function(em) {
           geom_boxplot(outlier.size = .1) +
           theme_bw() + 
           coord_flip() + 
+          ylab("Coefficient RMSE") +
           ggtitle(paste("n =", nm, ", p =", pm, ", dist =", dm, ", effect =", em))
         
         p2 <- ggplot(eva[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = coverage_rate)) +
@@ -53,13 +54,15 @@ plots <- lapply(res[, unique(effect)], function(em) {
           geom_boxplot(outlier.size = .1) +
           geom_hline(yintercept = 0.95, color = "red") +
           theme_bw() + 
-          coord_flip()
+          coord_flip() + 
+          ylab("Coverage rate")
         
         p3 <- ggplot(eva[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = average_width)) +
           facet_grid(prop_mis ~ pattern, scales = "free") +
           geom_boxplot(outlier.size = .1) +
           theme_bw() + 
-          coord_flip() 
+          coord_flip() + 
+          ylab("Average CI width")
         
         (p1 + p2 + p3)
       })

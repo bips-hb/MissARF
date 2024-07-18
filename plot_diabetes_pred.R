@@ -40,8 +40,7 @@ plots <- lapply(res[, unique(n)], function(nm) {
     geom_boxplot(outlier.size = .1) +
     theme_bw() + 
     ylab("Brier score") + 
-    coord_flip() + 
-    ggtitle(paste("n =", nm))
+    coord_flip()
 })
 names(plots) <- res[, unique(n)]
 
