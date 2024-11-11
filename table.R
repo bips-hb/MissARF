@@ -9,6 +9,7 @@ source("setup.R")
 res_nrmse <- readRDS(file.path(path, paste0("logreg_nrmse", ".rds")))
 res_coverage <- readRDS(file.path(path, paste0("logreg_coverage", ".rds")))
 res_pred <- readRDS(file.path(path, paste0("logreg_pred", ".rds")))
+res_runtime <- readRDS(file.path(path, paste0("runtime_1thread", ".rds")))
 
 # Evaluate NRMSE ----------------------------------------------------------------
 res_nrmse[, Method := factor(paste0(algorithm,
@@ -77,27 +78,49 @@ res_pred[, Method := factor(Method,
                        labels = c("ARF", "MissForest PMM", "MissForest", 
                                   "MICE RF", "MICE PMM", "Median Imp.", "Random Imp."))]
 
+# Runtime -----------------------------------------------------------------
+res_runtime[, seconds := time/1e9]
+
+# Separate the information in the expr column
+res_runtime[grep("mice", expr), expr := gsub("mice_", "mice-", expr)]
+res_runtime[grep("missranger_pmm", expr), expr := gsub("missranger_pmm", "missranger-pmm", expr)]
+res_runtime <- cbind(res_runtime, res_runtime[, tstrsplit(expr, split = "_", names = c("Method", "Imputation", "n", "p", "prop_mis"))])
+res_runtime[, n := as.numeric(n)]
+res_runtime[, p := as.numeric(p)]
+
+# Rename methods
+res_runtime[, Method := factor(Method, 
+                            levels = c("arf", "missranger-pmm", "missranger", 
+                                       "mice-rf", "mice-pmm", "median", "random"), 
+                            labels = c("ARF", "MissForest PMM", "MissForest", 
+                                       "MICE RF", "MICE PMM", "Median Imp.", "Random Imp."))]
+
+# Mean over all settings
+tab_runtime_single <- res_runtime[Imputation == "sing", .(runtime_single_mean = mean(seconds, na.rm = TRUE), runtime_single_sd = sd(seconds, na.rm = TRUE)), by = .(Method)]
+tab_runtime_multi <- res_runtime[Imputation == "multi", .(runtime_multi_mean = mean(seconds, na.rm = TRUE), runtime_multi_sd = sd(seconds, na.rm = TRUE)), by = .(Method)]
+
+
 # Table over all settings --------------------------------------------------------------------
 tab_nrmse <- res_nrmse[ , .(nrmse_mean = mean(nrmse, na.rm = TRUE), nrmse_sd = sd(nrmse, na.rm = TRUE)), by = .(Method)]
 tab_brier <- res_pred[ , .(brier_mean = mean(perf, na.rm = TRUE), brier_sd = sd(perf, na.rm = TRUE)), by = .(Method)]
 tab_cvg <- eva[ , .(cvg_median = median(coverage_rate, na.rm = TRUE), cvg_iqr = IQR(coverage_rate, na.rm = TRUE)), by = .(Method)]
 tab_aw <- eva[ , .(aw_median = median(average_width, na.rm = TRUE), aw_iqr = IQR(average_width, na.rm = TRUE)), by = .(Method)]
+tab_runtime <- merge(tab_runtime_single, tab_runtime_multi, by = "Method", all = TRUE)
 
 tab <- merge(tab_nrmse, tab_brier, by = "Method", all = TRUE)
 tab <- merge(tab, tab_cvg, by = "Method", all = TRUE)
 tab <- merge(tab, tab_aw, by = "Method", all = TRUE)
+tab <- merge(tab, tab_runtime, by = "Method", all = TRUE)
 
-tab[, NRMSE := sprintf("%.3f (%.3f)", nrmse_mean, nrmse_sd)]
+tab[, NRMSE := sprintf("%.2f (%.2f)", nrmse_mean, nrmse_sd)]
 tab[, Brier := sprintf("%.3f (%.3f)", brier_mean, brier_sd)]
-tab[, Coverage := sprintf("%.3f (%.3f)", cvg_median, cvg_iqr)]
-tab[, AvgWidth := sprintf("%.3f (%.3f)", aw_median, aw_iqr)]
-
-kbl(tab[c(1, 3, 2, 4:7), .(Method, NRMSE, Brier, Coverage, AvgWidth)], booktabs = TRUE, format = "latex")
-
-# 
-res_nrmse_mean <- res_nrmse[,  mean(nrmse, na.rm = TRUE), by = .(Method, pattern, n, p, prop_mis, dist, effect)]
-res_nrmse_mean[ , .(nrmse_mean = mean(V1, na.rm = TRUE), nrmse_median = median(V1, na.rm = TRUE)), by = .(Method)][order(nrmse_median), ]
+#tab[, Runtime_single := sprintf("%.1f (%.1f)", runtime_single_mean, runtime_single_sd)]
+tab[, Runtime_single := sprintf("%.1f", runtime_single_mean)]
+tab[, Coverage := sprintf("%.1f (%.1f)", cvg_median*100, cvg_iqr*100)]
+tab[, AvgWidth := sprintf("%.2f (%.2f)", aw_median, aw_iqr)]
+#tab[, Runtime_multi := sprintf("%.1f (%.1f)", runtime_multi_mean, runtime_multi_sd)]
+tab[, Runtime_multi := sprintf("%.1f", runtime_multi_mean)]
 
 
-res_nrmse_mean <- res_nrmse[,  mean(nrmse, na.rm = TRUE), by = .(Method, pattern, prop_mis)]
-res_nrmse_mean[ , .(nrmse_mean = mean(V1, na.rm = TRUE), nrmse_median = median(V1, na.rm = TRUE)), by = .(Method)][order(nrmse_median), ]
+# Final latex table
+kbl(tab[c(7, 6, 3, 2, 5, 4, 1), .(Method, NRMSE, Brier, Runtime_single, Coverage, AvgWidth, Runtime_multi)], booktabs = TRUE, format = "latex")
