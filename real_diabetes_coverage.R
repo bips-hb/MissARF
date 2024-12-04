@@ -101,8 +101,3 @@ waitForJobs()
 # Get/save results ---------------------------------------------------------
 res <- ijoin(unwrap(getJobPars()), reduceResultsDataTable()[, as.data.table(result), by = job.id])
 saveRDS(res, file.path(path, paste0(reg_name, ".rds")))
-
-# Plot ----------------------------------------------------------------
-source("plot_diabetes_coverage.R")
-
-

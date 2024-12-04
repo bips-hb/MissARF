@@ -1,6 +1,10 @@
 # Runtime comparison of imputation methods
 # Run once for one thread and once for 16 threads, changing the relevant text passages.
 
+library(doParallel)
+library(microbenchmark)
+source("setup.R")
+
 set.seed(123)
 seed=123
 
@@ -27,10 +31,6 @@ if (k == 1) {
 } else {
   parallel = TRUE
 }
-
-library(doParallel)
-library(microbenchmark)
-source("setup.R")
 
 ## Simulate data sets: normal distribution with linear effect with different n, p and prop_mis
 #n=1000
@@ -59,6 +59,7 @@ df_10000_4_04 <- sim_data(n=10000, p=4, prop_mis = 0.4, pattern = "MAR")$incompl
 df_10000_10_04 <- sim_data(n=10000, p=10, prop_mis = 0.4, pattern = "MAR")$incomplete
 df_10000_20_04 <- sim_data(n=10000, p=20, prop_mis = 0.4, pattern = "MAR")$incomplete
 
+# Compare runtimes
 runtime_k16 <- microbenchmark(
   ###p=4
   ##df_1000_4_01
