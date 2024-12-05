@@ -4,6 +4,8 @@ in the paper "Missing value imputation with adversarial random forests -- MissAR
 by P. Golchian, J. Kapar, D. Watson, M. Wright. It compares MissARF with other 
 state-of-the-art imputation algorithms.
 
+**Note that a HPC cluster is required to run the benchmark experiments in a reasonable amount of time.**
+
 Setup for benchmark
 * setup.R - Required packages and scripts
 * problems.R - Setup data 
