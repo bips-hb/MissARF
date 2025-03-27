@@ -105,11 +105,13 @@ tab_nrmse <- res_nrmse[ , .(nrmse_mean = mean(nrmse, na.rm = TRUE), nrmse_sd = s
 tab_brier <- res_pred[ , .(brier_mean = mean(perf, na.rm = TRUE), brier_sd = sd(perf, na.rm = TRUE)), by = .(Method)]
 tab_cvg <- eva[ , .(cvg_median = median(coverage_rate, na.rm = TRUE), cvg_iqr = IQR(coverage_rate, na.rm = TRUE)), by = .(Method)]
 tab_aw <- eva[ , .(aw_median = median(average_width, na.rm = TRUE), aw_iqr = IQR(average_width, na.rm = TRUE)), by = .(Method)]
+tab_rmse <- eva[ , .(rmse_median = median(rmse, na.rm = TRUE), rmse_iqr = IQR(rmse, na.rm = TRUE)), by = .(Method)]
 tab_runtime <- merge(tab_runtime_single, tab_runtime_multi, by = "Method", all = TRUE)
 
 tab <- merge(tab_nrmse, tab_brier, by = "Method", all = TRUE)
 tab <- merge(tab, tab_cvg, by = "Method", all = TRUE)
 tab <- merge(tab, tab_aw, by = "Method", all = TRUE)
+tab <- merge(tab, tab_rmse, by = "Method", all = TRUE)
 tab <- merge(tab, tab_runtime, by = "Method", all = TRUE)
 
 tab[, NRMSE := sprintf("%.2f (%.2f)", nrmse_mean, nrmse_sd)]
@@ -118,9 +120,10 @@ tab[, Brier := sprintf("%.3f (%.3f)", brier_mean, brier_sd)]
 tab[, Runtime_single := sprintf("%.1f", runtime_single_mean)]
 tab[, Coverage := sprintf("%.1f (%.1f)", cvg_median*100, cvg_iqr*100)]
 tab[, AvgWidth := sprintf("%.2f (%.2f)", aw_median, aw_iqr)]
+tab[, RMSE := sprintf("%.2f (%.2f)", rmse_median, rmse_iqr)]
 #tab[, Runtime_multi := sprintf("%.1f (%.1f)", runtime_multi_mean, runtime_multi_sd)]
 tab[, Runtime_multi := sprintf("%.1f", runtime_multi_mean)]
 
 
 # Final latex table
-kbl(tab[c(7, 6, 3, 2, 5, 4, 1), .(Method, NRMSE, Brier, Runtime_single, Coverage, AvgWidth, Runtime_multi)], booktabs = TRUE, format = "latex")
+kbl(tab[c(7, 6, 3, 2, 5, 4, 1), .(Method, NRMSE, Brier, Runtime_single, Coverage, AvgWidth, RMSE, Runtime_multi)], booktabs = TRUE, format = "latex")
