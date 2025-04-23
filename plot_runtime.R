@@ -10,18 +10,19 @@ library(microbenchmark)
 library(patchwork)
 
 #Get runtime results
-loaded_results <- readRDS("microbenchmark_results_med_rand_k1.rds")
-loaded_results1 <- readRDS("microbenchmark_results_k1.rds")
+#loaded_results <- readRDS("microbenchmark_results_med_rand_k1.rds")
+#loaded_results1 <- readRDS("microbenchmark_results_k1.rds")
 runtime_k16 <- readRDS("microbenchmark_results_k16.rds")
 
-mice_pmm_1 <- readRDS("runtime_k1_mice_pmm.rds")
-mice_pmm_16 <- readRDS("runtime_k16_mice_pmm.rds")
+#mice_pmm_1 <- readRDS("runtime_k1_mice_pmm.rds")
+#mice_pmm_16 <- readRDS("runtime_k16_mice_pmm.rds")
 
 #threads = 16
-runtime_k16 <- runtime_k16 %>%
-  filter(!grepl("mice_pmm", expr))
+#runtime_k16 <- runtime_k16 %>%
+#  filter(!grepl("mice_pmm", expr))
 
-runtime <- rbind(runtime_k16, mice_pmm_16)
+#runtime <- rbind(runtime_k16, mice_pmm_16)
+runtime <- runtime_k16 #res_runtime_16# #runtime_k16
 
 ##thread=1
 #runtime <- rbind(loaded_results, loaded_results1)
@@ -94,7 +95,7 @@ ggsave("supplement_plots/runtime_thread16.pdf", plot = bb, width = 210, height =
 
 ## 2) Caculate the mean runtime for each method --------------------------------
 
-mean_method_fct <- function(filter = "sing_", ts = 1e9, method_name="MissARF"){
+mean_method_fct <- function(filter = "sing_", ts = 1e9){
   runtime_filtered <- runtime %>%
     filter(grepl(filter, as.character(runtime$expr))) %>%
     mutate(
@@ -117,8 +118,8 @@ mean_method_fct <- function(filter = "sing_", ts = 1e9, method_name="MissARF"){
     mutate(
       prop_mis = factor(prop_mis, levels = c("01", "02", "04"), labels = c("0.1", "0.2", "0.4")),  
       p = factor(p, levels = c("4", "10", "20"), labels=c("p=4", "p=10", "p=20")),  
-      method = factor(method, levels = c("MissARF", "MissForest", "MissForest PMM", "MICE RF", "MICE PMM", 
-                                         "Median Imp.", "Random Imp."))  
+      method = factor(method, levels = c("Random Imp.", "Median Imp.", "MissForest", "MissForest PMM",  "MICE PMM", 
+                                         "MICE RF", "MissARF"))  
     )
 
   mean_times_all_methods <- runtime_filtered %>%
@@ -128,10 +129,12 @@ mean_method_fct <- function(filter = "sing_", ts = 1e9, method_name="MissARF"){
   return(mean_times_all_methods)
 }
 
-mean_method_fct(filter = "sing_1000_", ts = 1e9, method_name="MICE PMM")
-mean_method_fct(filter = "multi_1000_", ts = 1e9, method_name="MICE PMM")
-mean_method_fct(filter = "sing_10000_", ts = 1e9, method_name="MICE PMM")
-mean_method_fct(filter = "multi_10000_", ts = 1e9, method_name="MICE PMM")
-mean_method_fct(filter = "sing_", ts = 1e9, method_name="MICE PMM")
-mean_method_fct(filter = "multi_", ts = 1e9, method_name="MICE PMM")
-mean_method_fct(filter = "", ts = 1e9, method_name="MICE PMM")
+mean_method_fct(filter = "sing_500_", ts = 1e9)
+mean_method_fct(filter = "multi_500_", ts = 1e9)
+mean_method_fct(filter = "sing_1000_", ts = 1e9)
+mean_method_fct(filter = "multi_1000_", ts = 1e9)
+mean_method_fct(filter = "sing_10000_", ts = 1e9)
+mean_method_fct(filter = "multi_10000_", ts = 1e9)
+mean_method_fct(filter = "sing_", ts = 1e9)
+mean_method_fct(filter = "multi_", ts = 1e9)
+mean_method_fct(filter = "", ts = 1e9)

@@ -54,11 +54,11 @@ arf_fun <- function(data, job, instance, eval, ...) {
 }
 
 # missRanger imputation ---------------------------------------------------
-impute_missRanger <- function(incomplete, m = 5, num.trees = 100, pmm.k = 5, ...) {
+impute_missRanger <- function(incomplete, m = 5, num.trees = 100, pmm.k = 5, num.threads = 1, ...) {
   # Multiple imputation
   dat_imputed <- lapply(1:m, function(i) {
     missRanger(incomplete, verbose = 0, pmm.k = pmm.k, 
-               num.trees = num.trees, num.threads = 1, ...)
+               num.trees = num.trees, num.threads = num.threads, ...)
   })
   dat_imputed
 }
