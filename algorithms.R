@@ -24,19 +24,19 @@ mice_fun <- function(data, job, instance, eval, ...) {
 # arf imputation ----------------------------------------------------------
 impute_arf <- function(incomplete, m = 5, min_node_size = 10,
                        num_trees = 10, finite_bounds = "no", epsilon = 1e-14, 
-                       expectation = FALSE, ...) {
+                       expectation = FALSE, parallel = FALSE, ...) {
   # Multiple imputation
-  arf <- adversarial_rf(incomplete, verbose = FALSE, parallel = FALSE, 
+  arf <- adversarial_rf(incomplete, verbose = FALSE, parallel = parallel, 
                         min_node_size = min_node_size, num_trees = num_trees, 
                         replace = FALSE)
-  psi <- forde(arf, incomplete, parallel = FALSE, finite_bounds = finite_bounds, 
+  psi <- forde(arf, incomplete, parallel = parallel, finite_bounds = finite_bounds, 
                epsilon = epsilon, alpha = 0)
   if (expectation) {
     dat_imputed <- expct(psi, evidence = incomplete, 
-                         parallel = FALSE, stepsize = 100)
+                         parallel = parallel, stepsize = 100)
   } else {
     x_synth <- forge(psi, n_synth = m, evidence = incomplete, 
-                     parallel = FALSE, stepsize = 100)
+                     parallel = parallel, stepsize = 100)
     x_synth[, idx := rep(1:m, nrow(incomplete))]
     dat_imputed <- split(x_synth, by = "idx")
     dat_imputed <- lapply(dat_imputed, function(x) x[, idx := NULL])
