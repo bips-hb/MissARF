@@ -14,6 +14,8 @@ library(knitr)
 #Get runtime results
 #loaded_results <- readRDS("microbenchmark_results_med_rand_k1.rds")
 #loaded_results1 <- readRDS("microbenchmark_results_k1.rds")
+runtime_k1 <- readRDS("microbenchmark_results_k1.rds")
+
 runtime_k16 <- readRDS("microbenchmark_results_k16.rds")
 runtime_k16_arf <- readRDS("microbenchmark_results_k16_missARF.rds")
 
@@ -30,6 +32,7 @@ runtime_k16 <- runtime_k16 %>%
   filter(!grepl("arf", expr))
 
 runtime <- rbind(runtime_k16, runtime_k16_arf)
+runtime <- runtime_k1
 #runtime <- runtime_k16 #res_runtime_16# #runtime_k16
 
 ##thread=1
@@ -100,7 +103,7 @@ bb <- (p0 | p3) / (p1 | p4) / (p2 | p5)
 #thread=1
 #ggsave("supplement_plots/runtime_thread1.pdf", plot = bb, width = 210, height = 173.33, units = "mm", scale = 1.5) 
 #thread=16
-ggsave("supplement_plots/runtime_thread16.pdf", plot = bb, width = 210, height = 260, units = "mm", scale = 1.5) 
+ggsave("supplement_plots/runtime_thread1.pdf", plot = bb, width = 210, height = 260, units = "mm", scale = 1.5) 
 
 ## 2) Caculate the mean runtime for each method --------------------------------
 
