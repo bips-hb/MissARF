@@ -3,7 +3,7 @@ library(batchtools)
 source("setup.R")
 
 # Simulation study: COVERAGE ---------------------------------------------
-reg_name <- "logreg_coverage_min_node_size_2_30" #"logreg_coverage_min_node_size"
+reg_name <- "logreg_coverage_min_node_size_log_2_400" #"logreg_coverage_min_node_size_100_500" #"logreg_coverage_min_node_size_2_30" #"logreg_coverage_min_node_size"
 
 set.seed(42)
 
@@ -24,7 +24,7 @@ m <- 20
 # arf args
 finite_bounds <- "local" 
 num_trees <- 100
-min_node_size <- unique(round(exp(seq(log(2), log(30), length.out = 15)))) #round(seq(2, 100, length.out = 10))
+min_node_size <- unique(round(exp(seq(log(2), log(400), length.out = 100)))) #round(seq(100, 500, length.out = 10)) #unique(round(exp(seq(log(2), log(30), length.out = 15)))) #round(seq(2, 100, length.out = 10))
 expectation <- FALSE
 
 # mice args
@@ -48,11 +48,11 @@ makeExperimentRegistry(file.dir = reg_dir, seed = 42,
 addProblem(name = "sim_data", fun = sim_fun, seed = 43)
 
 # Algorithms -----------------------------------------------------------
-addAlgorithm(name = "mice", fun = mice_fun)
+#addAlgorithm(name = "mice", fun = mice_fun)
 addAlgorithm(name = "arf", fun = arf_fun)
-addAlgorithm(name = "missRanger", fun = missRanger_fun)
-#addAlgorithm(name = "missForest", fun = missForest_fun)
-addAlgorithm(name = "random", fun = random_fun)
+#addAlgorithm(name = "missRanger", fun = missRanger_fun)
+##addAlgorithm(name = "missForest", fun = missForest_fun)
+#addAlgorithm(name = "random", fun = random_fun)
 
 # Experiments -----------------------------------------------------------
 prob_design <- list(
@@ -72,29 +72,29 @@ prob_design <- list(
 )
 
 algo_design <- list(
-  mice = expand.grid(m = m,
-                     eval = "coverage",
-                     method = method, 
-                     stringsAsFactors = FALSE),
+  #mice = expand.grid(m = m,
+  #                   eval = "coverage",
+  #                   method = method, 
+  #                   stringsAsFactors = FALSE),
   arf = expand.grid(m = m,
                     expectation = expectation,
                     eval = "coverage",
                     finite_bounds = finite_bounds,
                     num_trees = num_trees,
                     min_node_size = min_node_size,
-                    stringsAsFactors = FALSE), 
-  missRanger = expand.grid(m = m,
-                           eval = "coverage",
-                           pmm.k = pmm.k,
-                           num.trees = num.trees,
-                           stringsAsFactors = FALSE), 
-  # missForest = expand.grid(m = m,
-  #                          eval = "coverage",
-  #                          ntree = ntree,
-  #                          stringsAsFactors = FALSE),
-  random = expand.grid(m = m,
-                       eval = "coverage",
-                       stringsAsFactors = FALSE)
+                    stringsAsFactors = FALSE)#, 
+ # missRanger = expand.grid(m = m,
+#                           eval = "coverage",
+  #                         pmm.k = pmm.k,
+   #                        num.trees = num.trees,
+  #                         stringsAsFactors = FALSE), 
+  ## missForest = expand.grid(m = m,
+  ##                          eval = "coverage",
+  ##                          ntree = ntree,
+  ##                          stringsAsFactors = FALSE),
+  #random = expand.grid(m = m,
+  #                     eval = "coverage",
+  #                     stringsAsFactors = FALSE)
 )
 
 addExperiments(prob_design, algo_design, repls = repls)
