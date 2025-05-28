@@ -3,7 +3,7 @@ library(batchtools)
 source("setup.R")
 
 # Simulation study: NRMSE ---------------------------------------------
-reg_name <- "logreg_nrmse_num_trees"
+reg_name <- "logreg_nrmse_num_trees_20_30"
 
 set.seed(42)
 
@@ -23,8 +23,8 @@ m <- 1
 
 # arf args
 finite_bounds <- "local" 
-num_trees <- round(seq(10, 1000, length.out = 100))#100
-min_node_size <- c(10,20,30)
+num_trees <- c(seq(from = 10, to = 160, by = 30)) #c(seq(from = 10, to = 400, by = 30), seq(from = 450, to = 1000, by = 50)) 
+min_node_size <- c(20,30)#10 #c(10,20,30)
 expectation <- TRUE
 
 # mice args

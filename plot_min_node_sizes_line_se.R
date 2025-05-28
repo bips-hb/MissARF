@@ -8,7 +8,7 @@ library(dplyr)
 source("setup.R")
 
 # Get results -------------------------------------------------------------
-res_coverage_node_sizes <- readRDS(file.path(path, paste0("logreg_coverage_min_node_size_log_2_400", ".rds")))
+res_coverage_node_sizes <- readRDS(file.path(path, paste0("logreg_coverage_min_node_size_log_2_400", ".rds"))) 
 
 # Evaluate Coverage different node sizes ----------------------------------------------------------------
 
@@ -32,24 +32,27 @@ p_cov <- ggplot(eva_node_sizes, aes(x=min_node_size,y=coverage_rate)) +
   scale_y_continuous(breaks = c(seq(0.5, 0.9, by = 0.1), seq(0.91, 1, by = 0.02)))+
   theme_bw(base_size = 14) + 
   theme(plot.title = element_text(size = 14), axis.text.x = element_text(angle = 45, hjust = 1))+
-  xlab("Coverage rate")+
-  ylab(NULL) #xlab("Minimum node sizes of MissARF")
+  ggtitle("a)")+ #dist = normal, effect = linear, n = 1000, p = 4, pattern = MAR, mis.= 0.4")+ 
+  ylab("Coverage rate")+
+  xlab("Minimum node sizes")# of MissARF")
 
 p_aw <- ggplot(eva_node_sizes, aes(x=min_node_size,y=average_width)) +
   stat_smooth(method="loess", span=0.1, se=TRUE,  alpha=0.3) +
   scale_x_continuous(breaks = c(seq(0,400,by=20)))+
   theme_bw(base_size = 14) + 
   theme(plot.title = element_text(size = 14), axis.text.x = element_text(angle = 45, hjust = 1))+
-  xlab("Average CI width")+
-  ylab(NULL) #xlab("Minimum node sizes of MissARF")
+  ggtitle("b) ")+ #dist = normal, effect = linear, n = 1000, p = 4, pattern = MAR, mis.= 0.4")+ 
+  ylab("Average CI width")+
+  xlab("Minimum node sizes")#ylab(NULL) #xlab("Minimum node sizes of MissARF")
 
 p_rmse <- ggplot(eva_node_sizes, aes(x=min_node_size,y=rmse)) +
   stat_smooth(method="loess", span=0.1, se=TRUE,  alpha=0.3) +
   scale_x_continuous(breaks =c(seq(0,400,by=20)))+
   theme_bw(base_size = 14) + 
   theme(plot.title = element_text(size = 14), axis.text.x = element_text(angle = 45, hjust = 1))+
-  xlab("Coefficient RMSE")+
-  ylab(NULL)#("Minimum node sizes of MissARF")
+  ggtitle("c) ") +#dist = normal, effect = linear, n = 1000, p = 4, pattern = MAR, mis.= 0.4")+ 
+  ylab("Coefficient RMSE")+
+  xlab("Minimum node sizes")#xlab(NULL)#("Minimum node sizes of MissARF")
 
 bb <- (p_cov |p_aw) / ( p_rmse |plot_spacer() )
 
@@ -73,3 +76,7 @@ means <- eva_node_sizes[algorithm == "arf", .(
 
 best_node <- means[which.max(mean_coverage)]$min_node_size
 best_node
+
+mean(eva_node_sizes[min_node_size== 31 , coverage_rate])
+mean(eva_node_sizes[min_node_size== 10 , coverage_rate])
+
