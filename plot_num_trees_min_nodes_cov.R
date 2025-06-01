@@ -33,12 +33,36 @@ table(eva_node_sizes$num_trees)
 
 # Evaluate Cov for different number of trees ----------------------------------------------------------------
 
-ggplot(eva_node_sizes, aes(x=num_trees,y=coverage_rate, colour=Method)) +
+cov <- ggplot(eva_node_sizes, aes(x=num_trees,y=coverage_rate, colour=Method)) +
   stat_smooth(method="loess", span= 0.3, se=TRUE, alpha=0.3) +
   scale_x_continuous(breaks = c(seq(10,160,by=30)))+#pretty(eva_node_sizes$min_node_size, n = 25))+
   #  scale_y_continuous(breaks = c(seq(0.5, 0.9, by = 0.1), seq(0.91, 1, by = 0.02)))+
   theme_bw(base_size = 14) + 
   theme(plot.title = element_text(size = 14), axis.text.x = element_text(angle = 45, hjust = 1))+
-  ggtitle("a) dist=normal, effect = linear, n=1000, p=4, pattern = MAR, mis.= 0.4")+ #dist = normal, effect = linear, n = 1000, p = 4, pattern = MAR, mis.= 0.4")+ 
+  ggtitle("a) ")+ #dist=normal, effect = linear, n=1000, p=4, pattern = MAR, mis.= 0.4")+ #dist = normal, effect = linear, n = 1000, p = 4, pattern = MAR, mis.= 0.4")+ 
   ylab("Coverage")+
   xlab("Number of trees")# of MissARF")
+
+aw <- ggplot(eva_node_sizes, aes(x=num_trees,y=average_width, colour=Method)) +
+  stat_smooth(method="loess", span= 0.3, se=TRUE, alpha=0.3) +
+  scale_x_continuous(breaks = c(seq(10,160,by=30)))+#pretty(eva_node_sizes$min_node_size, n = 25))+
+  #  scale_y_continuous(breaks = c(seq(0.5, 0.9, by = 0.1), seq(0.91, 1, by = 0.02)))+
+  theme_bw(base_size = 14) + 
+  theme(plot.title = element_text(size = 14), axis.text.x = element_text(angle = 45, hjust = 1))+
+  ggtitle("b) ")+ # dist=normal, effect = linear, n=1000, p=4, pattern = MAR, mis.= 0.4")+ 
+  ylab("Average CI width")+
+  xlab("Number of trees")
+
+rmse <- ggplot(eva_node_sizes, aes(x=num_trees,y=rmse, colour=Method)) +
+  stat_smooth(method="loess", span= 0.3, se=TRUE, alpha=0.3) +
+  scale_x_continuous(breaks = c(seq(10,160,by=30)))+#pretty(eva_node_sizes$min_node_size, n = 25))+
+  #  scale_y_continuous(breaks = c(seq(0.5, 0.9, by = 0.1), seq(0.91, 1, by = 0.02)))+
+  theme_bw(base_size = 14) + 
+  theme(plot.title = element_text(size = 14), axis.text.x = element_text(angle = 45, hjust = 1))+
+  ggtitle("c) ")+ # dist=normal, effect = linear, n=1000, p=4, pattern = MAR, mis.= 0.4")+ 
+  ylab("Coef. RMSE")+
+  xlab("Number of trees")
+
+bb <- (cov | aw)/(rmse|plot_spacer()) 
+
+ggsave("supplement_plots/plot_cov_num_trees.pdf", plot = bb, width = 210, height = 173.33, units = "mm", scale = 1.5)
