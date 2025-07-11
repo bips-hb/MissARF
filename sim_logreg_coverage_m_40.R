@@ -1,4 +1,4 @@
-
+#Simulation on more multiple imputation m=40 for 0.4 missingness
 library(batchtools)
 source("setup.R")
 

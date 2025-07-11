@@ -1,4 +1,4 @@
-
+#Simulation of different number of trees 10-160 and min node sizes 10, 20 & 30 of NRMSE
 library(batchtools)
 source("setup.R")
 

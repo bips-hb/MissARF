@@ -1,4 +1,4 @@
-
+# Different number of min node sizes for a fixed case
 library(batchtools)
 source("setup.R")
 

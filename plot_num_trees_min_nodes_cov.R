@@ -1,5 +1,5 @@
 # Plots of simulation study for the paper
-
+# Plots rsults of sim_logreg_coverage_num_trees.R - Simulation of different number of trees 10-160 and min node sizes 10, 20 & 30
 library(data.table)
 library(ggplot2)
 library(patchwork)

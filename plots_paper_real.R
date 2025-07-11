@@ -10,7 +10,32 @@ source("setup.R")
 # Get results -------------------------------------------------------------
 res_nrmse <- readRDS(file.path(path, paste0("diabetes_nrmse", ".rds")))
 res<- readRDS(file.path(path, paste0("diabetes_coverage", ".rds")))
+res_pred <- readRDS(file.path(path, paste0("diabetes_pred", ".rds")))
 
+# Evaluate Pred ----------------------------------------------------------------
+res_pred[, Method := factor(paste0(algorithm,
+                                   ifelse(is.na(method), "", paste0("_", method)),
+                                   ifelse(is.na(m), "", paste0("_", as.character(m))),
+                                   ifelse(is.na(expectation), "", ifelse(expectation, "_expct", "")),
+                                   ifelse(is.na(pmm.k), "", paste0("_", as.character(pmm.k))),
+                                   ifelse(is.na(finite_bounds), "", paste0("_", finite_bounds)),
+                                   ifelse(is.na(min_node_size), "", paste0("_", sprintf("%02d", min_node_size))),
+                                   ifelse(is.na(num_trees), "", paste0("_", sprintf("%03d", num_trees)))
+))]
+res_pred[, pattern := factor(pattern, levels = c("MCAR", "MAR", "MNAR"))]
+res_pred[, perf := V1]
+
+# Rename methods
+res_pred[, Method := factor(Method, 
+                            levels = c("arf_1_expct_local_10_100", "mice_rf_1", "mice_pmm_1", "missRanger_1_5", "missRanger_1_0", 
+                                       "median", "random_1"), 
+                            labels = c("MissARF", "MICE RF", "MICE PMM","MissForest PMM", "MissForest", 
+                                       "Median Imp.", "Random Imp."))]
+
+
+# Remove extreme outliers (for all methods)
+res_pred[, repl := 1:.N, by = .(algorithm, n, prop_mis, pattern, Method)]
+res_pred <- res_pred[!(repl %in% c(11, 97)), ]
 # Evaluate NRMSE ----------------------------------------------------------------
 res_nrmse[, Method := factor(paste0(algorithm,
                               ifelse(is.na(method), "", paste0("_", method)),
@@ -114,6 +139,53 @@ p20 <- plot_function(res_nrmse, bestMethod = "MissForest", ylab="Data NRMSE", ti
 # Combine the plots
 p_nrmse <- wrap_plots(p4, p10, p20, ncol = 1)
 
+
+# Plot Pred --------------------------------------------------------------------
+plot_perf <- function(res, bestMethod, ylab=NULL, propMis = 0.4, xlab=NULL, patternLabel=FALSE, ticks=TRUE,limit, title=FALSE){
+  # Filter the data for the "best method" and calculate the median NRMSE for each pattern
+  medians <- res %>%
+    filter(Method == bestMethod, prop_mis==propMis) %>%
+    group_by(pattern) %>%
+    summarize(median_perf = median(perf))
+  
+  if(bestMethod == "MissARF"){
+    col<-"blue3"
+  }else{
+    col<-"orange4"
+  }
+  data <- res %>%
+    filter(prop_mis == propMis)
+  p<- ggplot(data, aes(x = Method, y = perf, fill = Method, color = Method)) +
+    facet_grid(prop_mis ~ pattern, labeller = labeller(prop_mis =c('0.1'=paste("mis. = 0.1"), '0.2'=paste("mis. = 0.2"), '0.4'=paste("mis. = 0.4")))) +
+    geom_boxplot(outlier.size = 0.1)+  
+    theme_bw(base_size = 14) + 
+    theme(plot.title = element_text(size = 14), axis.text.x = element_text(angle = 45, hjust = 1))+ 
+    coord_flip() + 
+    scale_fill_manual(values = c(method_colors)) +
+    scale_colour_manual(values = c(outline_colors)) +
+    guides(fill = "none", color = "none") + 
+    ylab(ylab) + 
+    xlab(xlab) + 
+    scale_y_continuous(limits = limit) + 
+    geom_hline(data = medians, aes(yintercept = median_perf), linetype = "dashed", color = col)
+  if(title){
+    p<-p+ggtitle("b) Brier Score - Diabetes dataset")
+  }
+  if(!patternLabel){
+    p<-p+theme(strip.text.x = element_blank()) 
+  }
+  if(ticks){
+    p<-p+theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+  }
+  return(p)
+}
+
+p4 <- plot_perf(res_pred, bestMethod = "MissForest", , propMis = 0.1, patternLabel=TRUE,limit=c(0.08, 0.175), title = TRUE)
+p10 <- plot_perf(res_pred, bestMethod = "MissForest", , propMis = 0.2, limit=c(0.08, 0.175)) 
+p20 <- plot_perf(res_pred, bestMethod = "MissARF", ylab="Brier Score", ticks = FALSE,limit=c(0.08, 0.175))
+
+p_brier <- wrap_plots(p4, p10, p20, ncol = 1)
+
 # Plot Coverage --------------------------------------------------------------------
 # Color methods
 method_colors <- c("MissARF" = "#4472C4", "MissForest" = "white", "MissForest PMM" = "white", 
@@ -131,7 +203,7 @@ ggplot(eva[n == nm, ], aes(x = Method, y = coverage_rate, fill = Method, color=M
     geom_hline(yintercept = 0.95, color = "red") +
     theme_bw(base_size = 14) + 
     theme(plot.title = element_text(size = 14), axis.text.x = element_text(angle = 45, hjust = 1))+   
-    ggtitle("b) Coverage rate - Diabetes dataset")+
+    ggtitle("c) Coverage rate - Diabetes dataset")+
     coord_flip() + 
     ylab("Coverage rate")+
     xlab(NULL)+
@@ -143,7 +215,9 @@ names(plot_cov) <- res[, unique(n)]
 p_cov <- wrap_plots(plot_cov, ncol = 1)
 
 # Combine and save the plots
-bb <- p_nrmse | p_cov
+#bb <- p_nrmse | p_cov
+bb <- (p_nrmse | p_brier)/(p_cov|plot_spacer()) 
 
-ggsave("plot_real.pdf", plot = bb, width = 210, height = 86.66, units = "mm", scale = 1.5)
+#ggsave("plot_real.pdf", plot = bb, width = 210, height = 86.66, units = "mm", scale = 1.5)
+ggsave("diabetes_nrmse_brier_cov.pdf", plot = bb, width = 210, height = 173.33, units = "mm", scale = 1.5)
 

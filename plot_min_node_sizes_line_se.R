@@ -1,4 +1,6 @@
 # Plots of simulation study for the paper
+# Different number of min node sizes for a fixed case
+# From simulation skript: sim_logreg_coverage_min_node_sizes.R
 
 library(data.table)
 library(ggplot2)
@@ -56,7 +58,7 @@ p_rmse <- ggplot(eva_node_sizes, aes(x=min_node_size,y=rmse)) +
 
 bb <- (p_cov |p_aw) / ( p_rmse |plot_spacer() )
 
-ggsave("plot_min_node_sizes.pdf", plot = bb, width = 210, height = 173.33, units = "mm", scale = 1.5) 
+ggsave("supplement_plots/plot_min_node_sizes.pdf", plot = bb, width = 210, height = 173.33, units = "mm", scale = 1.5) 
 
 ## checking values ----------------------------------------------------------------
 median(eva_node_sizes[min_node_size== 31 & n == 1000 & p == 4 & dist == "normal" & effect == "linear" & pattern == "MAR" & prop_mis== 0.4, coverage_rate])
