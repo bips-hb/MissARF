@@ -28,14 +28,12 @@ Aggregated simulation results and runtime:
 * table.R - Aggregated simulation results and runtime comparison
 
 Plot results:
-* (plots_paper_sim.R - Plot simulation results shown in paper (first draft))
 * plot_paper_nrmse_brier.R - Plot simulation results of settin I of NRMSE and Brier score (shown in paper)
 * plot_paper_sim_settingII.R - Plot simulation results of setting II of Coverage, CI width, RMSE (shown in paper)
 * plots_paper_real.R - Plot real data results (shown in paper)
 * plots_supplement.R - Plot all simulation results (supplement)
 * plots_supplement_realdata.R - Plot real data results (supplement)
-* (plot_runtime.R - Plot runtime comparison, calculate mean runtime shown in table (supplement) (first draft))
-* plot_runtime_n500_1000_new.R - Plot runtime comparison, calculate mean runtime shown in table (supplement)
+* plot_runtimes.R - Plot runtime comparison, calculate mean runtime shown in table (supplement)
 
 Further experiments with plots:
 * sim_logreg_coverage_min_node_sizes.R - Simulation with varying minimum node sizes 2-400 for MissARF (setting II)
