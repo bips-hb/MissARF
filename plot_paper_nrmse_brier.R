@@ -145,8 +145,8 @@ p_nrmse_binary_1000 <- wrap_plots(p4, p10, p20, ncol = 1)
 nm <- 500
 
 p4 <- plot_function(res_nrmse,nm, pm = 4, dm, em, bestMethod = "MissARF", patternLabel=TRUE,limit=c(0.9, 2.0), title = TRUE, subcap="d)")
-p10 <- plot_function(res_nrmse,nm, pm = 10, dm, em, bestMethod = "MissARF",limit=c(0.9, 2.0)) 
-p20 <- plot_function(res_nrmse,nm, pm = 20, dm, em, bestMethod = "MissARF", ylab="Data NRMSE", ticks = FALSE,limit=c(0.9, 2.0))
+p10 <- plot_function(res_nrmse,nm, pm = 10, dm, em, bestMethod = "MissForest",limit=c(0.9, 2.0)) 
+p20 <- plot_function(res_nrmse,nm, pm = 20, dm, em, bestMethod = "MissForest", ylab="Data NRMSE", ticks = FALSE,limit=c(0.9, 2.0))
 
 # Combine the plots 
 p_nrmse_binary_500 <- wrap_plots(p4, p10, p20, ncol = 1)
