@@ -30,9 +30,23 @@ Aggregated simulation results and runtime:
 * table.R - Aggregated simulation results and runtime comparison
 
 Plot results:
-* plots_paper_sim.R - Plot simulation results shown in paper
-* plots_paper_real.R - Plot real data results shown in paper
+* plot_paper_nrmse_brier.R - Plot simulation results of settin I of NRMSE and Brier score (shown in paper)
+* plot_paper_sim_settingII.R - Plot simulation results of setting II of Coverage, CI width, RMSE (shown in paper)
+* plots_paper_real.R - Plot real data results (shown in paper)
 * plots_supplement.R - Plot all simulation results (supplement)
-* plots_supplement_realdata.R - Plot real data results shown in supplement
-* plot_runtime.R - Plot runtime comparison, calculate mean runtime shown in table (supplement)
+* plots_supplement_realdata.R - Plot real data results (supplement)
+* plot_runtimes.R - Plot runtime comparison, calculate mean runtime shown in table (supplement)
+
+Further experiments with plots:
+* sim_logreg_coverage_min_node_sizes.R - Simulation with varying minimum node sizes 2-400 for MissARF (setting II)
+* plot_min_node_sizes_line_se.R - Plots results of sim_logreg_coverage_min_node_sizes.R 
+
+* sim_logreg_coverage_num_trees.R - Simulation of different number of trees 10-160 and min node sizes 10, 20 & 30 (setting II)
+* plot_num_trees_min_nodes_cov.R - Plots results of sim_logreg_coverage_num_trees.R
+* sim_logreg_nrmse_num_trees.R - Simulation of different number of trees 10-160 and min node sizes 10, 20 & 30 for NRMSE 
+* plot_num_trees_nrmse_line.R - Plot results of sim_logreg_nrmse_num_trees.R of different number of trees 10-160 and min node sizes 10, 20 & 30 of NRMSE
+
+* sim_logreg_coverage_m_40.R - Simulation with m=40 multiple imputation
+* plots_multiple_40.R - Plots results of sim_logreg_coverage_m_40.R and compares it with m=20
+
 

@@ -86,7 +86,8 @@ method_colors <- c("MissARF" = "#4472C4", "MissForest" = "#DD7907", "MissForest 
 outline_colors <- c("MissARF" = "blue3", "MissForest" = "orange4", "MissForest PMM" = "black", 
                     "MICE RF" = "black", "MICE PMM" = "black", "Median Imp." = "black", "Random Imp." = "black")
 
-# Plot Brier Score --------------------------------------------------------------------
+## Plot Brier Score --------------------------------------------------------------------
+# n=1000, n=10000
 plot_pred <- lapply(res_pred[, unique(effect)], function(em) {
   pp <- lapply(res_pred[, unique(dist)], function(dm) {
     lapply(res_pred[, unique(p)], function(pm) {
@@ -147,7 +148,48 @@ invisible(lapply(1:length(plot_pred), function(i) {
   })
 }))
 
-# Plot NRMSE --------------------------------------------------------------------
+#n=500
+plot_pred <- lapply(res_pred[, unique(effect)], function(em) {
+  pp <- lapply(res_pred[, unique(dist)], function(dm) {
+    lapply(res_pred[, unique(p)], function(pm) {
+      nm <- 500
+      if(pm == 4){
+        subcap <- "a)"
+      }else if(pm == 10){
+        subcap <- "b)"
+      }else{
+        subcap <- "c)"
+      }
+      p1 <- ggplot(res_pred[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = perf, fill = Method, color=Method)) +
+        facet_grid(prop_mis ~ pattern, scales = "free", labeller = labeller(prop_mis =c('0.1'=paste("mis. = 0.1"), '0.2'=paste("mis. = 0.2"), '0.4'=paste("mis. = 0.4")))) +
+        geom_boxplot(outlier.size = .1) +
+        theme_bw(base_size = 14) + 
+        theme(plot.title = element_text(size = 14), axis.text.x = element_text(angle = 45, hjust = 1))+ 
+        coord_flip() + 
+        scale_fill_manual(values =c(method_colors)) +
+        scale_colour_manual(values = c(outline_colors)) +
+        guides(fill = "none", color = "none")+ 
+        ggtitle(paste(subcap,"dist =", dm, ", effect =", em, ", n =", nm, ", p =", pm ))+
+        ylab("Brier score") + 
+        xlab(NULL)
+      
+      (p1 + plot_spacer())
+    })
+  })
+  names(pp) <- res_pred[, unique(dist)]
+  pp
+})
+names(plot_pred) <- res_pred[, unique(effect)]
+
+invisible(lapply(1:length(plot_pred), function(i) {
+  lapply(1:length(plot_pred[[i]]), function(j) {
+    pp <- patchwork::wrap_plots(plot_pred[[i]][[j]], ncol = 1)
+    ggsave(file.path("supplement_plots/results_pred_500", paste0("logreg_pred", "_", names(plot_pred)[i], "_", names(plot_pred[[i]])[j], ".pdf")), plot = pp , width = 210, height = 260, units = "mm", scale = 1.5) 
+  })
+}))
+
+## Plot NRMSE --------------------------------------------------------------------
+# n=1000, n=10000
 plot_nrmse <- lapply(res_nrmse[, unique(effect)], function(em) {
   pp <- lapply(res_nrmse[, unique(dist)], function(dm) {
     lapply(res_nrmse[, unique(p)], function(pm) {
@@ -208,6 +250,45 @@ invisible(lapply(1:length(plot_nrmse), function(i) {
   })
 }))
 
+#n=500
+plot_nrmse <- lapply(res_nrmse[, unique(effect)], function(em) {
+  pp <- lapply(res_nrmse[, unique(dist)], function(dm) {
+    lapply(res_nrmse[, unique(p)], function(pm) {
+      nm <- 500
+      if(pm == 4){
+        subcap <- "a)"
+      }else if(pm == 10){
+        subcap <- "b)"
+      }else{
+        subcap <- "c)"
+      }
+      p1 <- ggplot(res_nrmse[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = nrmse, fill = Method, color=Method)) +
+        facet_grid(prop_mis ~ pattern, scales = "free", labeller = labeller(prop_mis =c('0.1'=paste("mis. = 0.1"), '0.2'=paste("mis. = 0.2"), '0.4'=paste("mis. = 0.4")))) +
+        geom_boxplot(outlier.size = .1) +
+        theme_bw(base_size = 14) + 
+        theme(plot.title = element_text(size = 14), axis.text.x = element_text(angle = 45, hjust = 1))+  
+        coord_flip() + 
+        ylab("Data NRMSE") + 
+        xlab(NULL)+
+        scale_fill_manual(values =c(method_colors)) +
+        scale_colour_manual(values = c(outline_colors)) +
+        guides(fill = "none", color = "none")+ 
+        ggtitle(paste(subcap,"dist =", dm, ", effect =", em, ", n =", nm, ", p =", pm ))
+      
+      (p1 + plot_spacer())
+    })
+  })
+  names(pp) <- res_nrmse[, unique(dist)]
+  pp
+})
+names(plot_nrmse) <- res_nrmse[, unique(effect)]
+
+invisible(lapply(1:length(plot_nrmse), function(i) {
+  lapply(1:length(plot_nrmse[[i]]), function(j) {
+    pp <- patchwork::wrap_plots(plot_nrmse[[i]][[j]], ncol = 1)
+    ggsave(file.path("supplement_plots/results_nrmse_500", paste0("logreg_nrmse", "_", names(plot_nrmse)[i], "_", names(plot_nrmse[[i]])[j], ".pdf")), plot = pp , width = 210, height = 260, units = "mm", scale = 1.5) 
+  })
+}))
 
 # Colour methods for coverage-------------------------------------------------------------------------------
 method_colors <- c("MissARF" = "#4472C4", "MissForest" = "white", "MissForest PMM" = "white", 
@@ -217,9 +298,10 @@ method_colors <- c("MissARF" = "#4472C4", "MissForest" = "white", "MissForest PM
 outline_colors <- c("MissARF" = "blue3", "MissForest" = "black", "MissForest PMM" = "black", 
                     "MICE RF" = "black", "MICE PMM" = "darkgreen", "Random Imp." = "black")
 
-# Plot coverage --------------------------------------------------------------------
-plot_cov <- lapply(res_coverage[, unique(effect)], function(em) {
-  pp <- lapply(res_coverage[, unique(dist)], function(dm) {
+## Plot coverage --------------------------------------------------------------------
+# n=1000, n=10000
+plot_cov <- lapply(eva[, unique(effect)], function(em) {
+  pp <- lapply(eva[, unique(dist)], function(dm) {
       lapply(eva[, unique(p)], function(pm) {
         if(pm == 4){
           subcap <- "a)"
@@ -278,9 +360,50 @@ invisible(lapply(1:length(plot_cov), function(i) {
   })
 }))
 
-#Plot AW -----------------------------------------------------------------------
-plot_aw <- lapply(res_coverage[, unique(effect)], function(em) {
-  pp <- lapply(res_coverage[, unique(dist)], function(dm) {
+#n=500
+plot_cov <- lapply(eva[, unique(effect)], function(em) {
+  pp <- lapply(eva[, unique(dist)], function(dm) {
+    lapply(eva[, unique(p)], function(pm) {
+      if(pm == 4){
+        subcap <- "a)"
+      }else if(pm == 10){
+        subcap <- "b)"
+      }else{
+        subcap <- "c)"
+      }
+      p1 <- ggplot(eva[n == 500 & p == pm & dist == dm & effect == em, ], aes(x = Method, y = coverage_rate, fill = Method, color=Method)) +
+        facet_grid(prop_mis ~ pattern, labeller = labeller(prop_mis =c('0.1'=paste("mis. = 0.1"), '0.2'=paste("mis. = 0.2"), '0.4'=paste("mis. = 0.4")))) +
+        geom_boxplot(outlier.size = .1) +
+        geom_hline(yintercept = 0.95, color = "red") +
+        theme_bw(base_size = 14) + 
+        theme(plot.title = element_text(size = 14), axis.text.x = element_text(angle = 45, hjust = 1))+ 
+        coord_flip() + 
+        xlab(NULL)+
+        scale_fill_manual(values =c(method_colors)) +
+        scale_colour_manual(values = c(outline_colors)) +
+        guides(fill = "none", color="none") +
+        ggtitle(paste(subcap,"dist =", dm, ", effect =", em, ", n =", 500, ", p =", pm ))+ 
+        ylab("Coverage rate")
+      
+      (p1 + plot_spacer())
+    })
+  })
+  names(pp) <- res_coverage[, unique(dist)]
+  pp
+})
+names(plot_cov) <- res_coverage[, unique(effect)]
+
+invisible(lapply(1:length(plot_cov), function(i) {
+  lapply(1:length(plot_cov[[i]]), function(j) {
+    pp <- patchwork::wrap_plots(plot_cov[[i]][[j]], ncol = 1)
+    ggsave(file.path("supplement_plots/results_cov_500", paste0("logreg_coverage", "_", names(plot_cov)[i], "_", names(plot_cov[[i]])[j], ".pdf")), plot = pp , width = 210, height = 260, units = "mm", scale = 1.5) 
+  })
+}))
+
+##Plot AW -----------------------------------------------------------------------
+# n=1000, n=10000
+plot_aw <- lapply(eva[, unique(effect)], function(em) {
+  pp <- lapply(eva[, unique(dist)], function(dm) {
     lapply(eva[, unique(p)], function(pm) {
       nm <- 1000
       if(pm == 4){
@@ -327,10 +450,10 @@ plot_aw <- lapply(res_coverage[, unique(effect)], function(em) {
       (p1 + p2)
     })
   })
-  names(pp) <- res_coverage[, unique(dist)]
+  names(pp) <- eva[, unique(dist)]
   pp
 })
-names(plot_aw) <- res_coverage[, unique(effect)]
+names(plot_aw) <- eva[, unique(effect)]
 
 invisible(lapply(1:length(plot_aw), function(i) {
   lapply(1:length(plot_aw[[i]]), function(j) {
@@ -339,8 +462,49 @@ invisible(lapply(1:length(plot_aw), function(i) {
   })
 }))
 
+#n=500
+plot_aw <- lapply(eva[, unique(effect)], function(em) {
+  pp <- lapply(eva[, unique(dist)], function(dm) {
+    lapply(eva[, unique(p)], function(pm) {
+      nm <- 500
+      if(pm == 4){
+        subcap <- "a)"
+      }else if(pm == 10){
+        subcap <- "b)"
+      }else{
+        subcap <- "c)"
+      }
+      p1 <- ggplot(eva[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = average_width, fill = Method, color=Method)) +
+        facet_grid(prop_mis ~ pattern, scales = "free", labeller = labeller(prop_mis =c('0.1'=paste("mis. = 0.1"), '0.2'=paste("mis. = 0.2"), '0.4'=paste("mis. = 0.4")))) +
+        geom_boxplot(outlier.size = .1) +
+        theme_bw(base_size = 14) + 
+        theme(plot.title = element_text(size = 14), axis.text.x = element_text(angle = 45, hjust = 1))+  
+        coord_flip() + 
+        xlab(NULL)+
+        scale_fill_manual(values =c(method_colors)) +
+        scale_colour_manual(values = c(outline_colors)) +
+        guides(fill = "none", color="none") +
+        ggtitle(paste(subcap,"dist =", dm, ", effect =", em, ", n =", nm, ", p =", pm ))+
+        ylab("Average CI width")
+      
+      (p1 + plot_spacer())
+    })
+  })
+  names(pp) <- eva[, unique(dist)]
+  pp
+})
+names(plot_aw) <- eva[, unique(effect)]
 
-#Plot RMSE -----------------------------------------------------------------------
+invisible(lapply(1:length(plot_aw), function(i) {
+  lapply(1:length(plot_aw[[i]]), function(j) {
+    pp <- patchwork::wrap_plots(plot_aw[[i]][[j]], ncol = 1)
+    ggsave(file.path("supplement_plots/results_aw_500", paste0("logreg_aw", "_", names(plot_aw)[i], "_", names(plot_aw[[i]])[j], ".pdf")), plot = pp , width = 210, height = 260, units = "mm", scale = 1.5) 
+  })
+}))
+
+
+##Plot RMSE -----------------------------------------------------------------------
+# n=1000, n=10000
 plot_rmse <- lapply(res_coverage[, unique(effect)], function(em) {
   pp <- lapply(res_coverage[, unique(dist)], function(dm) {
     lapply(eva[, unique(p)], function(pm) {
@@ -398,5 +562,46 @@ invisible(lapply(1:length(plot_rmse), function(i) {
   lapply(1:length(plot_rmse[[i]]), function(j) {
     pp <- patchwork::wrap_plots(plot_rmse[[i]][[j]], ncol = 1)
     ggsave(file.path("supplement_plots/results_rmse", paste0("logreg_rmse", "_", names(plot_rmse)[i], "_", names(plot_rmse[[i]])[j], ".pdf")), plot = pp , width = 210, height = 260, units = "mm", scale = 1.5) 
+  })
+}))
+
+
+#n=500
+plot_rmse <- lapply(res_coverage[, unique(effect)], function(em) {
+  pp <- lapply(res_coverage[, unique(dist)], function(dm) {
+    lapply(eva[, unique(p)], function(pm) {
+      nm <- 500
+      if(pm == 4){
+        subcap <- "a)"
+      }else if(pm == 10){
+        subcap <- "b)"
+      }else{
+        subcap <- "c)"
+      }
+      p1 <- ggplot(eva[n == nm & p == pm & dist == dm & effect == em, ], aes(x = Method, y = rmse, fill = Method, color=Method)) +
+        facet_grid(prop_mis ~ pattern, scales = "free", labeller = labeller(prop_mis =c('0.1'=paste("mis. = 0.1"), '0.2'=paste("mis. = 0.2"), '0.4'=paste("mis. = 0.4")))) +
+        geom_boxplot(outlier.size = .1) +
+        theme_bw(base_size = 14) + 
+        theme(plot.title = element_text(size = 14), axis.text.x = element_text(angle = 45, hjust = 1))+  
+        coord_flip() + 
+        xlab(NULL)+
+        scale_fill_manual(values =c(method_colors)) +
+        scale_colour_manual(values = c(outline_colors)) +
+        guides(fill = "none", color="none") +
+        ggtitle(paste(subcap,"dist =", dm, ", effect =", em, ", n =", nm, ", p =", pm ))+
+        ylab("Coefficient RMSE")
+      
+      (p1 +  plot_spacer())
+    })
+  })
+  names(pp) <- res_coverage[, unique(dist)]
+  pp
+})
+names(plot_rmse) <- res_coverage[, unique(effect)]
+
+invisible(lapply(1:length(plot_rmse), function(i) {
+  lapply(1:length(plot_rmse[[i]]), function(j) {
+    pp <- patchwork::wrap_plots(plot_rmse[[i]][[j]], ncol = 1)
+    ggsave(file.path("supplement_plots/results_rmse_500", paste0("logreg_rmse", "_", names(plot_rmse)[i], "_", names(plot_rmse[[i]])[j], ".pdf")), plot = pp , width = 210, height = 260, units = "mm", scale = 1.5) 
   })
 }))
