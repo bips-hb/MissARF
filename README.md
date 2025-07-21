@@ -1,4 +1,4 @@
-# Missing value imputation with adversarial random forests - MissARF
+# Imputation benchmark for "Missing value imputation with adversarial random forests - MissARF"
 This repository contains the code for the simulation study and real data example 
 in the paper "Missing value imputation with adversarial random forests -- MissARF" 
 by P. Golchian, J. Kapar, D. Watson, M. Wright. It compares MissARF with other 
