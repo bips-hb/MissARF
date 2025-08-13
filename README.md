@@ -1,7 +1,7 @@
 # Imputation benchmark for "Missing value imputation with adversarial random forests - MissARF"
 This repository contains the code for the simulation study and real data example 
 in the paper [Missing value imputation with adversarial random forests &mdash; MissARF](https://arxiv.org/abs/2507.15681) 
-by P. Golchian, J. Kapar, D. Watson, M. Wright. It compares MissARF with other 
+by P. Golchian, J. Kapar, D. S. Watson, M. N. Wright. It compares MissARF with other 
 state-of-the-art imputation algorithms and is currently under review at Statistics in Medicine.
 
 **Note that a HPC cluster is required to run the benchmark experiments in a reasonable amount of time.**
